@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring }
 
 const HERO_GARMENTS = [
   { name: "jacket", src: "/floating-jacket.webp", alt: "Cobalt technical jacket suspended in midair" },
+  { name: "black midi dress", src: "/black-empire-midi-dress.png", alt: "Black embroidered empire-waist midi dress with short puff sleeves and a full A-line skirt" },
   { name: "shirt", src: "/floating-shirt.webp", alt: "Ivory long-sleeve shirt with intricate cobalt embroidery suspended in midair" },
   { name: "barong", src: "/floating-barong.webp", alt: "Ivory embroidered barong suspended in midair" },
 ];
@@ -36,7 +37,8 @@ export function Hero() {
   );
   const [isHovered, setIsHovered] = useState(false);
   const [garmentIndex, setGarmentIndex] = useState(0);
-  const garment = HERO_GARMENTS[garmentIndex];
+  const visibleGarmentIndex = reducedMotion ? 1 : garmentIndex;
+  const garment = HERO_GARMENTS[visibleGarmentIndex];
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -156,9 +158,9 @@ export function Hero() {
               <Image
                 src={garment.src}
                 fill
-                preload={garmentIndex === 0}
-                loading={garmentIndex === 0 ? "eager" : undefined}
-                fetchPriority={garmentIndex === 0 ? "high" : undefined}
+                preload={visibleGarmentIndex === 0}
+                loading={visibleGarmentIndex === 0 ? "eager" : undefined}
+                fetchPriority={visibleGarmentIndex === 0 ? "high" : undefined}
                 sizes="(max-width: 767px) 96vw, (max-width: 1400px) 64vw, 896px"
                 alt={garment.alt}
                 className="object-contain drop-shadow-[0_20px_45px_rgba(0,18,90,0.45)]"

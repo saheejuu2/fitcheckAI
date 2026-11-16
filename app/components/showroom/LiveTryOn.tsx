@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Script from "next/script";
+import { ArrowRight, Camera, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { createDecartClient } from "@decartai/sdk";
@@ -14,6 +15,7 @@ const GARMENTS = {
   bomber: { name: "Floating Brand Bomber", displayName: ["Floating Brand", "Bomber"], image: "/floating-jacket.webp", prompt: "Dress the person in the cobalt technical bomber jacket from the reference. Preserve its ribbed cuffs and hem, sleeve pocket, zipper, face, body shape, pose and background." },
   shirt: { name: "Embroidered Long-Sleeve Shirt", displayName: ["Embroidered", "Shirt"], image: "/floating-shirt.webp", prompt: "Dress the person in the ivory long-sleeve button-up shirt with intricate cobalt and navy embroidery and chest pockets shown in the reference. Preserve its pattern, the person's face, body shape, pose and background." },
   barong: { name: "Midnight Barong", displayName: ["Midnight", "Barong"], image: "/floating-barong.webp", prompt: "Dress the person in the modern ivory embroidered Filipino barong from the reference. Preserve its embroidery, the person's face, body shape, pose and background." },
+  dress: { name: "Black Empire Midi Dress", displayName: ["Black Midi", "Dress"], image: "/black-empire-midi-dress.png", prompt: "Dress the person in the black embroidered empire-waist midi dress shown in the reference. Preserve its bodice embroidery, short puff sleeves, empire seam, full A-line skirt, and hem stitching, as well as the person's face, body shape, pose and background." },
 } as const;
 type BuiltInGarment = keyof typeof GARMENTS;
 type Garment = BuiltInGarment | "custom";
@@ -403,30 +405,62 @@ export function LiveTryOn() {
   const previewLoading = stage === "connecting" ? connectionLabel : stage === "live" && buffering ? "Buffering your preview…" : "";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-10">
-      <div className="min-w-0 space-y-3">
-        <div className="relative isolate aspect-[4/3] min-w-0 overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl sm:aspect-video">
+    <div>
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch xl:gap-12">
+        {/* Left Column: Showroom View */}
+        <div className="relative isolate aspect-[4/3] min-h-[280px] sm:min-h-[380px] lg:aspect-auto lg:min-h-0 w-full overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl">
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-left text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-right text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-bottom-left text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-bottom-right text-white/50" />
-          {photo && stage !== "done" && <Image src={photo.url} alt="Your selected body photo, held in this page for preview" fill sizes="(max-width: 1023px) 100vw, 800px" unoptimized className={`object-contain ${stage === "live" ? "opacity-0" : ""}`} />}
+          {photo && stage !== "done" && (
+            <Image
+              src={photo.url}
+              alt="Your selected body photo, held in this page for preview"
+              fill
+              sizes="(max-width: 1023px) 100vw, 800px"
+              unoptimized
+              className={`object-contain ${stage === "live" ? "opacity-0" : ""}`}
+            />
+          )}
           {!photo && stage !== "live" && (
             <>
-              <div aria-hidden="true" className="absolute inset-x-0 top-[10%] z-0 text-center text-[clamp(2rem,7vw,5.5rem)] font-black italic uppercase leading-[0.82] tracking-[-0.055em] text-white/30">
+              <div
+                aria-hidden="true"
+                className={`absolute inset-x-0 top-1/2 -translate-y-1/2 z-0 px-3 text-center font-black italic uppercase leading-[0.82] text-white/15 select-none pointer-events-none ${
+                  garment === "shirt"
+                    ? "text-[clamp(2.1rem,6.2vw,4.5rem)] tracking-[-0.06em]"
+                    : "text-[clamp(2.5rem,7.5vw,5.5rem)] tracking-[-0.055em]"
+                }`}
+              >
                 <span className="block">{garment === "custom" ? "UPLOAD" : selectedGarment.displayName[0]}</span>
                 <span className="block">{garment === "custom" ? "ONLY" : selectedGarment.displayName[1]}</span>
               </div>
-              <Image src={selectedGarment.image} alt={`${selectedGarment.name}, illustrative fashion concept`} fill sizes="(max-width: 1023px) 100vw, 800px" unoptimized={garment === "custom"} className="z-10 object-contain p-5" />
-              <div className="absolute inset-x-0 bottom-0 z-20 bg-[#15152f]/90 px-4 py-3 text-sm text-white">
-                <p className="font-semibold">{selectedGarment.name}</p>
-                <p className="mt-1 text-white/75">{garment === "custom" ? "Uploaded garment, background removed" : "Illustrative garment preview"}</p>
+              <Image
+                src={selectedGarment.image}
+                alt={`${selectedGarment.name}, illustrative fashion concept`}
+                fill
+                sizes="(max-width: 1023px) 100vw, 800px"
+                unoptimized={garment === "custom"}
+                className="z-10 object-contain p-6 sm:p-8 drop-shadow-[0_20px_35px_rgba(0,0,0,0.45)]"
+              />
+              <div className="absolute bottom-3.5 left-4 z-20 text-left pointer-events-none sm:bottom-4 sm:left-5">
+                <p className="font-semibold tracking-tight text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">{selectedGarment.name}</p>
+                <p className="text-xs text-white/75 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">{garment === "custom" ? "Uploaded garment, background removed" : "Illustrative garment preview"}</p>
               </div>
             </>
           )}
-          <video ref={video} autoPlay muted playsInline onWaiting={() => { if (stage === "live") setBuffering(true); }}
-            onPlaying={() => { setBuffering(false); void showFirstFrame(); }} aria-label="15-second AI-generated virtual try-on preview" aria-hidden={stage !== "live"}
-            className={`absolute inset-0 size-full object-contain ${stage === "live" ? "" : "opacity-0"}`} />
+          <video
+            ref={video}
+            autoPlay
+            muted
+            playsInline
+            onWaiting={() => { if (stage === "live") setBuffering(true); }}
+            onPlaying={() => { setBuffering(false); void showFirstFrame(); }}
+            aria-label="15-second AI-generated virtual try-on preview"
+            aria-hidden={stage !== "live"}
+            className={`absolute inset-0 size-full object-contain ${stage === "live" ? "" : "opacity-0"}`}
+          />
           <div role="status" className={previewLoading ? "absolute inset-0 z-30 grid place-items-center bg-[#15152f]/90 px-4 text-center" : "sr-only"}>
             {previewLoading && (
               <div className="grid justify-items-center gap-3">
@@ -441,125 +475,218 @@ export function LiveTryOn() {
             </div>
           )}
         </div>
-        <p className="text-sm text-[#51516c]">A visual style preview only. Check the seller’s size chart for fit.</p>
-      </div>
 
-      <div className="flex min-w-0 flex-col justify-center">
-        {(stage === "choose" || stage === "survey") && (
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold tracking-tight">Choose a preview</h3>
-            <p className="text-sm text-[#51516c]">Choose live camera or upload a photo. Each verified Google account can use one 15-second preview per hour across both options.</p>
-            <div role="group" aria-label="Choose a garment" className="grid grid-cols-3 gap-2">
-              {(Object.entries(GARMENTS) as [BuiltInGarment, typeof GARMENTS[BuiltInGarment]][]).map(([id, item]) => (
-                <button key={id} type="button" aria-pressed={garment === id} onClick={() => setGarment(id)}
-                  className="group relative aspect-[4/3] overflow-hidden border border-[#a3acd2] bg-[#0038ff] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff] aria-pressed:border-[#0038ff] aria-pressed:ring-2 aria-pressed:ring-[#0038ff]">
-                  <span aria-hidden="true" className="absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center text-[clamp(.65rem,1.4vw,1rem)] font-black italic uppercase leading-[0.9] tracking-[-0.045em] text-white/35">
-                    <span className="block">{item.displayName[0]}</span><span className="block">{item.displayName[1]}</span>
-                  </span>
-                  <Image src={item.image} alt="" fill sizes="(max-width: 1023px) 30vw, 12vw" className="z-10 object-contain p-1" />
-                  <span className="absolute inset-x-0 bottom-0 z-20 truncate bg-[#0b0c23]/95 px-1 py-1 text-center text-[0.64rem] leading-tight text-white sm:text-xs">{item.name}</span>
-                </button>
-              ))}
-            </div>
-            <label className="block text-sm font-semibold">Or upload a garment image
-              <input type="file" accept="image/jpeg,image/png,image/webp" onClick={prepareGarmentCutout} onChange={chooseGarment} disabled={cuttingOut} className="mt-2 block w-full text-sm file:mr-3 file:min-h-11 file:border-0 file:bg-[#0038ff] file:px-4 file:font-semibold file:text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff]" />
-              <span className="mt-1 block font-normal text-[#51516c]">JPG, PNG, or WebP up to 10 MB. The background is removed on your device; only the garment cutout is sent to Decart for this preview.</span>
-            </label>
-            {cuttingOut && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />Removing the background on your device…</p>}
-            <button type="button" onClick={() => startSurvey("live")} className="editorial-action w-full text-left">Live camera preview</button>
-            {stage === "choose" && availability === null && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />Checking preview availability…</p>}
-            {availability && !availability.previewAvailable && <p role="status" className="text-sm text-[#51516c]">Preview setup is not ready yet. The options will stay unavailable until integrations and provider approval are complete.</p>}
-          </div>
-        )}
-
-        {stage === "survey" && (
-          <Dialog open onOpenChange={(open) => { if (!open) setStage("choose"); }}>
-            <DialogContent
-              style={{ display: "flex", flexDirection: "column", maxHeight: "calc(100dvh - 2rem)" }}
-              className="w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto rounded-none border border-[#a3acd2] bg-white p-5 text-[#101b43] sm:max-w-2xl sm:p-8"
-            >
-              <DialogTitle className="pr-8 text-xl sm:text-2xl font-bold tracking-tight">{definition?.title ?? "FitCheck Market Validation Survey"}</DialogTitle>
-              <DialogDescription className="text-sm text-[#51516c]">{definition?.intro || "One quick question at a time. Your answers are saved privately to FitCheck after Google sign-in."}</DialogDescription>
-              <div role="progressbar" aria-label="Survey progress" aria-valuemin={1} aria-valuemax={stepCount} aria-valuenow={surveyStep + 1} className="h-1.5 w-full bg-[#e8ebf6]">
-                <div className="h-full bg-[#0038ff] transition-[width]" style={{ width: `${((surveyStep + 1) / stepCount) * 100}%` }} />
+        {/* Right Column: Controls Container */}
+        <div className="flex flex-col justify-between rounded-md border border-[#d5d5e4] bg-[#fcfcff] p-5 sm:p-6 shadow-sm">
+          {(stage === "choose" || stage === "survey") && (
+            <div className="flex h-full flex-col justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#101b43]">Select your look</h3>
+                <p className="text-xs sm:text-sm leading-relaxed text-[#51516c]">
+                  Choose a Floating Brand piece or upload your own garment. Previews run for 15 seconds.
+                </p>
               </div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#51516c]">Step {surveyStep + 1} of {stepCount}</p>
-              <form onSubmit={submitSurvey} className="flex min-h-0 flex-col gap-5">
-                <div className="min-h-[10rem] flex-1 space-y-4">
-                  {availability === null && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />Loading the questions…</p>}
-                  {definition?.questions[surveyStep] && (
-                    <SurveyQuestionField key={definition.questions[surveyStep].id} question={definition.questions[surveyStep]} value={surveyDraft} onChange={(next) => { setSurveyDraft(next); setStepError(""); }} />
-                  )}
-                  {stepError && <p role="alert" className="text-sm text-[#b42318]">{stepError}</p>}
-                </div>
-                {surveyUnavailable && <p role="status" className="text-sm text-[#51516c]">The survey isn’t available right now, so answers cannot be submitted.</p>}
+
+              <div role="group" aria-label="Choose a garment" className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                {(Object.entries(GARMENTS) as [BuiltInGarment, typeof GARMENTS[BuiltInGarment]][]).map(([id, item]) => {
+                  const isSelected = garment === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => setGarment(id)}
+                      className={`group relative aspect-[1.36/1] sm:aspect-[1.4/1] overflow-hidden rounded border text-left transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff] ${
+                        isSelected
+                          ? "border-[#0038ff] bg-[#1a1c3d] shadow-[0_0_20px_rgba(0,56,255,0.25)] ring-2 ring-[#0038ff]"
+                          : "border-[#2b2b52] bg-[#12132a] hover:border-[#4b5182] hover:bg-[#161734]"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center text-[clamp(0.68rem,1.2vw,0.9rem)] font-black italic uppercase leading-[0.88] tracking-[-0.04em] transition-colors select-none ${
+                          isSelected ? "text-white/35" : "text-white/15 group-hover:text-white/25"
+                        }`}
+                      >
+                        <span className="block">{item.displayName[0]}</span>
+                        <span className="block">{item.displayName[1]}</span>
+                      </span>
+                      <Image
+                        src={item.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1023px) 45vw, 16vw"
+                        className="z-10 object-contain p-2 sm:p-2.5 transition-transform duration-300 ease-out group-hover:scale-105 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                      />
+                      <div className={`absolute inset-x-0 bottom-0 z-20 border-t border-white/10 px-2 py-1.5 transition-colors sm:px-2.5 ${
+                        isSelected ? "bg-[#0b0c23]/95" : "bg-[#0b0c23]/90 group-hover:bg-[#0b0c23]"
+                      }`}>
+                        <span className="block truncate text-[0.68rem] sm:text-xs font-semibold tracking-tight text-white/95">
+                          {item.name}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div
+                className={`rounded border p-2.5 transition-all duration-200 ${
+                  garment === "custom" && customGarment
+                    ? "border-[#0038ff] bg-[#1a1c3d] text-white shadow-[0_0_16px_rgba(0,56,255,0.2)] ring-1 ring-[#0038ff]"
+                    : "border-[#d5d5e4] bg-[#f4f5fa] text-[#101b43] hover:border-[#a3acd2]"
+                }`}
+              >
                 <div className="flex items-center justify-between gap-3">
-                  <button type="button" onClick={() => surveyStep === 0 ? setStage("choose") : setSurveyStep((step) => step - 1)} className="min-h-11 underline underline-offset-4">{surveyStep === 0 ? "Back to preview" : "Back"}</button>
-                  <button type="submit" disabled={saving || !definition || (lastStep && (availability === null || surveyUnavailable))} className="editorial-action disabled:cursor-not-allowed disabled:opacity-60">
-                    {availability === null && <LoadingSpinner />}
-                    {!lastStep ? "Continue" : availability === null ? "Checking setup…" : surveyUnavailable ? "Survey unavailable" : "Continue to Google sign-in"}
+                  <button
+                    type="button"
+                    disabled={!customGarment}
+                    onClick={() => customGarment && setGarment("custom")}
+                    className={`min-w-0 flex-1 text-left ${!customGarment ? "cursor-default" : "cursor-pointer"}`}
+                  >
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#0038ff]">
+                      Custom Garment
+                    </p>
+                    <p className={`mt-0.5 truncate text-xs ${garment === "custom" && customGarment ? "text-white/80" : "text-[#51516c]"}`}>
+                      {customGarment ? "Uploaded garment cutout active" : "Upload your own JPG, PNG, or WebP (up to 10 MB)"}
+                    </p>
                   </button>
+                  <label className="relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded border border-[#101b43] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#101b43] transition-colors hover:bg-[#101b43] hover:text-white focus-within:ring-2 focus-within:ring-[#0038ff]">
+                    <Upload className="mr-1.5 size-3.5" />
+                    <span>{customGarment ? "Change" : "Upload"}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onClick={prepareGarmentCutout}
+                      onChange={chooseGarment}
+                      disabled={cuttingOut}
+                      className="sr-only"
+                    />
+                  </label>
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+                {cuttingOut && (
+                  <p role="status" className="mt-2 flex items-center gap-2 text-xs text-[#51516c] dark:text-white/70">
+                    <LoadingSpinner className="size-3.5 text-[#0038ff]" />
+                    Removing garment background on your device…
+                  </p>
+                )}
+              </div>
 
-        {stage === "sign-in" && (
-          <div className="space-y-4">
-            <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">Save your answers</h3>
-            <p className="text-sm text-[#51516c]">Sign in with Google. FitCheck uses your verified Google email to allow one try-on per hour; it is not stored with your answers.</p>
-            {availability?.googleClientId && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={initializeGoogleSignIn}
-              onError={() => { setSignInLoading(false); setMessage("Google sign-in is unavailable. Reload the page and try again."); }} />}
-            <div ref={signInButton} aria-label="Continue with Google" hidden={saving} />
-            {(saving || signInLoading) && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />{saving ? "Saving your answers…" : "Loading Google sign-in…"}</p>}
-            {availability?.googleClientId && !saving && !signInLoading && <p className="text-xs text-[#51516c]">Only Gmail or Google Workspace accounts with a verified email can use a preview.</p>}
-            <button type="button" disabled={saving} onClick={() => { setMessage(""); setStage("survey"); }} className="min-h-11 underline underline-offset-4 disabled:opacity-60">Edit answers</button>
-          </div>
-        )}
-
-        {stage === "upload" && (
-          <div className="space-y-4">
-            <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">{mode === "photo" ? "Choose your photo and look" : "Choose your look"}</h3>
-            {mode === "photo" ? <>
-              <p className="text-sm text-[#51516c]">Use a clear, front-facing photo with the person’s upper body visible. JPG, PNG, or WebP up to 10 MB.</p>
-              <label className="block text-sm font-semibold">Body photo
-                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} className="mt-2 block w-full text-sm file:mr-3 file:min-h-11 file:border-0 file:bg-[#0038ff] file:px-4 file:font-semibold file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff]" />
-              </label>
-            </> : <p className="text-sm text-[#51516c]">Your camera turns on only after you agree and start the preview. Audio stays off.</p>}
-            <p id="showroom-photo-consent" className="text-sm leading-relaxed text-[#51516c]">
-              {mode === "photo" ? "Your photo and the selected garment image are streamed from your browser to Decart to generate the preview. FitCheck does not save either image or the generated video. The preview, photo and uploaded garment image are cleared from this page when you stop, finish, or close it." : "Your camera video and the selected garment image are streamed from your browser to Decart to generate the preview. FitCheck does not save the video or generated result. The camera and uploaded garment image are cleared when you stop, finish, or close the page."} Decart’s handling follows its provider terms; public use stays disabled until those terms are approved.
-            </p>
-            <label className="flex items-start gap-2 text-sm">
-              <input type="checkbox" checked={consented} onChange={(event) => setConsented(event.target.checked)} aria-describedby="showroom-photo-consent" className="mt-0.5 size-4 shrink-0 accent-[#0038ff]" />
-              I’m 18 or older and agree to send {mode === "photo" ? "this photo" : "my camera video"} and the selected garment image to Decart for a 15-second style preview.
-            </label>
-            <div className="flex flex-wrap gap-3">
-              <button type="button" onClick={() => void start()} disabled={(mode === "photo" && !photo) || (garment === "custom" && !customGarment) || cuttingOut || !consented || saving || previewUnavailable} className="editorial-action disabled:cursor-not-allowed disabled:opacity-60">Start 15-second try-on</button>
-              {photo && <button type="button" onClick={() => { setPhoto(null); setConsented(false); setMessage(""); }} className="min-h-11 underline underline-offset-4">Remove photo</button>}
+              <div className="space-y-2 pt-2.5 border-t border-[#d5d5e4]">
+                <button
+                  type="button"
+                  onClick={() => startSurvey("live")}
+                  className="editorial-action w-full justify-between text-left"
+                >
+                  <span className="flex items-center gap-2">
+                    <Camera className="size-4 shrink-0" />
+                    <span>Live camera preview</span>
+                  </span>
+                  <ArrowRight className="size-4 shrink-0" />
+                </button>
+                {stage === "choose" && availability === null && (
+                  <p role="status" className="flex items-center gap-2 text-xs text-[#51516c]">
+                    <LoadingSpinner className="size-3.5" />Checking preview availability…
+                  </p>
+                )}
+                {availability && !availability.previewAvailable && (
+                  <p role="status" className="text-xs text-[#51516c]">
+                    Preview setup is not ready yet. Previews will unlock once integrations and provider approval are complete.
+                  </p>
+                )}
+              </div>
             </div>
-            <button type="button" onClick={() => { setStage("choose"); setPhoto(null); setConsented(false); setMessage(""); }} className="min-h-11 underline underline-offset-4">Choose a different preview</button>
-            {previewUnavailable && <p role="status" className="text-sm text-[#51516c]">Try-on previews are not enabled yet. They will stay unavailable until provider approval and setup are complete.</p>}
-          </div>
-        )}
+          )}
 
-        {(stage === "connecting" || stage === "live") && (
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold">{stage === "live" ? "Your look, in motion" : "Starting your try-on"}</h3>
-            <p className="text-sm text-[#51516c]">{stage === "live" ? "Your preview ends after 15 seconds." : "Keep this page open while the preview connects."}</p>
-            <button type="button" onClick={() => finish()} className="editorial-action">{stage === "live" ? "Stop preview" : "Cancel preview"}</button>
-          </div>
-        )}
+          {stage === "sign-in" && (
+            <div className="space-y-4">
+              <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">Save your answers</h3>
+              <p className="text-sm text-[#51516c]">Sign in with Google. FitCheck uses your verified Google email to allow one try-on per hour; it is not stored with your answers.</p>
+              {availability?.googleClientId && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={initializeGoogleSignIn}
+                onError={() => { setSignInLoading(false); setMessage("Google sign-in is unavailable. Reload the page and try again."); }} />}
+              <div ref={signInButton} aria-label="Continue with Google" hidden={saving} />
+              {(saving || signInLoading) && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />{saving ? "Saving your answers…" : "Loading Google sign-in…"}</p>}
+              {availability?.googleClientId && !saving && !signInLoading && <p className="text-xs text-[#51516c]">Only Gmail or Google Workspace accounts with a verified email can use a preview.</p>}
+              <button type="button" disabled={saving} onClick={() => { setMessage(""); setStage("survey"); }} className="min-h-11 underline underline-offset-4 disabled:opacity-60">Edit answers</button>
+            </div>
+          )}
 
-        {(stage === "finished" || stage === "done") && <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">Thanks for taking part.</h3>}
-        {message && <p role="status" className="mt-4 text-sm text-[#51516c]">{message}</p>}
-        {stage === "finished" && (
-          <div className="mt-5 w-fit max-w-full space-y-2 bg-[#101b43] px-4 py-3 text-white">
-            <h4 className="text-sm font-semibold">Follow us</h4>
-            <SocialLinks />
-          </div>
-        )}
+          {stage === "upload" && (
+            <div className="space-y-4">
+              <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">{mode === "photo" ? "Choose your photo and look" : "Choose your look"}</h3>
+              {mode === "photo" ? <>
+                <p className="text-sm text-[#51516c]">Use a clear, front-facing photo with the person’s upper body visible. JPG, PNG, or WebP up to 10 MB.</p>
+                <label className="block text-sm font-semibold">Body photo
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={choosePhoto} className="mt-2 block w-full text-sm file:mr-3 file:min-h-11 file:border-0 file:bg-[#0038ff] file:px-4 file:font-semibold file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff]" />
+                </label>
+              </> : <p className="text-sm text-[#51516c]">Your camera turns on only after you agree and start the preview. Audio stays off.</p>}
+              <p id="showroom-photo-consent" className="text-sm leading-relaxed text-[#51516c]">
+                {mode === "photo" ? "Your photo and the selected garment image are streamed from your browser to Decart to generate the preview. FitCheck does not save either image or the generated video. The preview, photo and uploaded garment image are cleared from this page when you stop, finish, or close it." : "Your camera video and the selected garment image are streamed from your browser to Decart to generate the preview. FitCheck does not save the video or generated result. The camera and uploaded garment image are cleared when you stop, finish, or close the page."} Decart’s handling follows its provider terms; public use stays disabled until those terms are approved.
+              </p>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" checked={consented} onChange={(event) => setConsented(event.target.checked)} aria-describedby="showroom-photo-consent" className="mt-0.5 size-4 shrink-0 accent-[#0038ff]" />
+                I’m 18 or older and agree to send {mode === "photo" ? "this photo" : "my camera video"} and the selected garment image to Decart for a 15-second style preview.
+              </label>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={() => void start()} disabled={(mode === "photo" && !photo) || (garment === "custom" && !customGarment) || cuttingOut || !consented || saving || previewUnavailable} className="editorial-action disabled:cursor-not-allowed disabled:opacity-60">Start 15-second try-on</button>
+                {photo && <button type="button" onClick={() => { setPhoto(null); setConsented(false); setMessage(""); }} className="min-h-11 underline underline-offset-4">Remove photo</button>}
+              </div>
+              <button type="button" onClick={() => { setStage("choose"); setPhoto(null); setConsented(false); setMessage(""); }} className="min-h-11 underline underline-offset-4">Choose a different preview</button>
+              {previewUnavailable && <p role="status" className="text-sm text-[#51516c]">Try-on previews are not enabled yet. They will stay unavailable until provider approval and setup are complete.</p>}
+            </div>
+          )}
+
+          {(stage === "connecting" || stage === "live") && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold">{stage === "live" ? "Your look, in motion" : "Starting your try-on"}</h3>
+              <p className="text-sm text-[#51516c]">{stage === "live" ? "Your preview ends after 15 seconds." : "Keep this page open while the preview connects."}</p>
+              <button type="button" onClick={() => finish()} className="editorial-action">{stage === "live" ? "Stop preview" : "Cancel preview"}</button>
+            </div>
+          )}
+
+          {(stage === "finished" || stage === "done") && <h3 ref={status} tabIndex={-1} className="text-2xl font-bold tracking-tight">Thanks for taking part.</h3>}
+          {message && <p role="status" className="mt-4 text-sm text-[#51516c]">{message}</p>}
+          {stage === "finished" && (
+            <div className="mt-5 w-fit max-w-full space-y-2 bg-[#101b43] px-4 py-3 text-white">
+              <h4 className="text-sm font-semibold">Follow us</h4>
+              <SocialLinks />
+            </div>
+          )}
+        </div>
       </div>
+
+      {stage === "survey" && (
+        <Dialog open onOpenChange={(open) => { if (!open) setStage("choose"); }}>
+          <DialogContent
+            style={{ display: "flex", flexDirection: "column", maxHeight: "calc(100dvh - 2rem)" }}
+            className="w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto rounded-none border border-[#a3acd2] bg-white p-5 text-[#101b43] sm:max-w-2xl sm:p-8"
+          >
+            <DialogTitle className="pr-8 text-xl sm:text-2xl font-bold tracking-tight">{definition?.title ?? "FitCheck Market Validation Survey"}</DialogTitle>
+            <DialogDescription className="text-sm text-[#51516c]">{definition?.intro || "One quick question at a time. Your answers are saved privately to FitCheck after Google sign-in."}</DialogDescription>
+            <div role="progressbar" aria-label="Survey progress" aria-valuemin={1} aria-valuemax={stepCount} aria-valuenow={surveyStep + 1} className="h-1.5 w-full bg-[#e8ebf6]">
+              <div className="h-full bg-[#0038ff] transition-[width]" style={{ width: `${((surveyStep + 1) / stepCount) * 100}%` }} />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#51516c]">Step {surveyStep + 1} of {stepCount}</p>
+            <form onSubmit={submitSurvey} className="flex min-h-0 flex-col gap-5">
+              <div className="min-h-[10rem] flex-1 space-y-4">
+                {availability === null && <p role="status" className="flex items-center gap-2 text-sm text-[#51516c]"><LoadingSpinner />Loading the questions…</p>}
+                {definition?.questions[surveyStep] && (
+                  <SurveyQuestionField key={definition.questions[surveyStep].id} question={definition.questions[surveyStep]} value={surveyDraft} onChange={(next) => { setSurveyDraft(next); setStepError(""); }} />
+                )}
+                {stepError && <p role="alert" className="text-sm text-[#b42318]">{stepError}</p>}
+              </div>
+              {surveyUnavailable && <p role="status" className="text-sm text-[#51516c]">The survey isn’t available right now, so answers cannot be submitted.</p>}
+              <div className="flex items-center justify-between gap-3">
+                <button type="button" onClick={() => surveyStep === 0 ? setStage("choose") : setSurveyStep((step) => step - 1)} className="min-h-11 underline underline-offset-4">{surveyStep === 0 ? "Back to preview" : "Back"}</button>
+                <button type="submit" disabled={saving || !definition || (lastStep && (availability === null || surveyUnavailable))} className="editorial-action disabled:cursor-not-allowed disabled:opacity-60">
+                  {availability === null && <LoadingSpinner />}
+                  {!lastStep ? "Continue" : availability === null ? "Checking setup…" : surveyUnavailable ? "Survey unavailable" : "Continue to Google sign-in"}
+                </button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

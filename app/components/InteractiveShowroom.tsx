@@ -10,18 +10,21 @@ export function InteractiveShowroom() {
       aria-labelledby="showroom-title"
       className="editorial-section scroll-mt-8 text-[#101b43]"
     >
-      <div className="flex flex-col justify-between gap-6 border-b border-[#d5d5e4] pb-6 sm:flex-row sm:items-end">
+      <div className="border-b border-[#d5d5e4] pb-6 text-center">
         <ScrollHeading margin="-80px" className="w-full">
           <h2
             id="showroom-title"
-            className="w-full text-balance font-black italic uppercase tracking-[-0.045em] text-4xl sm:text-6xl"
+            className="w-full text-center text-balance font-black italic uppercase tracking-[-0.045em] text-4xl sm:text-6xl text-[#101b43]"
           >
             Explore the showroom.
           </h2>
         </ScrollHeading>
+        <p className="mt-3 text-center text-xs sm:text-sm font-medium text-[#51516c]">
+          Visual style preview only. Sizing and drape vary; check the seller’s size chart for fit.
+        </p>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <LiveTryOn />
       </div>
     </section>

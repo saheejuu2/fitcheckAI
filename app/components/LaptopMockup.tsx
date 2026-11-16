@@ -7,6 +7,7 @@ const defaultGarments = [
   { name: "Floating Brand Bomber", src: "/floating-jacket.webp", alt: "Illustrative cobalt bomber" },
   { name: "Embroidered Shirt", src: "/floating-shirt.webp", alt: "Illustrative ivory shirt with cobalt embroidery" },
   { name: "Midnight Barong", src: "/floating-barong.webp", alt: "Illustrative ivory embroidered barong" },
+  { name: "Black Midi Dress", src: "/black-empire-midi-dress.png", alt: "Black embroidered empire-waist midi dress" },
 ];
 
 type LaptopMockupProps = {

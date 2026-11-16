@@ -7,7 +7,7 @@ import { parseDefinition, type SurveyDefinition } from "@/lib/surveyDefinition";
 const MODEL = "lucy-vton-3.6";
 const googleAuth = new OAuth2Client();
 const MAX_BODY_BYTES = 16 * 1024;
-const GARMENTS = new Set(["bomber", "shirt", "barong", "dress", "custom"]);
+const GARMENTS = new Set(["bomber", "shirt", "barong", "dress", "cardigan", "custom"]);
 const MAX_ANSWERS = 12;
 const SURVEY_CACHE_SECONDS = 60;
 

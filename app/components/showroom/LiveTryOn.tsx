@@ -16,6 +16,7 @@ const GARMENTS = {
   shirt: { name: "Embroidered Long-Sleeve Shirt", displayName: ["Embroidered", "Shirt"], image: "/floating-shirt.webp", prompt: "Dress the person in the ivory long-sleeve button-up shirt with intricate cobalt and navy embroidery and chest pockets shown in the reference. Preserve its pattern, the person's face, body shape, pose and background." },
   barong: { name: "Midnight Barong", displayName: ["Midnight", "Barong"], image: "/floating-barong.webp", prompt: "Dress the person in the modern ivory embroidered Filipino barong from the reference. Preserve its embroidery, the person's face, body shape, pose and background." },
   dress: { name: "Black Empire Midi Dress", displayName: ["Black Midi", "Dress"], image: "/black-empire-midi-dress.png", prompt: "Dress the person in the black embroidered empire-waist midi dress shown in the reference. Preserve its bodice embroidery, short puff sleeves, empire seam, full A-line skirt, and hem stitching, as well as the person's face, body shape, pose and background." },
+  cardigan: { name: "Navy-Green Knit Cardigan", displayName: ["Navy-Green", "Cardigan"], image: "/navy-green-knit-cardigan.png", prompt: "Dress the person in the dark navy-green collared knit cardigan shown in the reference. Preserve its fine-gauge ribbed texture, pointed collar, front button placket, purple-tipped cuffs, and tonal hip logo, as well as the person's face, body shape, pose and background." },
 } as const;
 type BuiltInGarment = keyof typeof GARMENTS;
 type Garment = BuiltInGarment | "custom";
@@ -428,7 +429,7 @@ export function LiveTryOn() {
               <div
                 aria-hidden="true"
                 className={`absolute inset-x-0 top-1/2 -translate-y-1/2 z-0 px-3 text-center font-black italic uppercase leading-[0.82] text-white/15 select-none pointer-events-none ${
-                  garment === "shirt"
+                  garment === "shirt" || garment === "cardigan"
                     ? "text-[clamp(2.1rem,6.2vw,4.5rem)] tracking-[-0.06em]"
                     : "text-[clamp(2.5rem,7.5vw,5.5rem)] tracking-[-0.055em]"
                 }`}

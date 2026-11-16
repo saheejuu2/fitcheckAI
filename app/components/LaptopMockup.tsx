@@ -8,6 +8,7 @@ const defaultGarments = [
   { name: "Embroidered Shirt", src: "/floating-shirt.webp", alt: "Illustrative ivory shirt with cobalt embroidery" },
   { name: "Midnight Barong", src: "/floating-barong.webp", alt: "Illustrative ivory embroidered barong" },
   { name: "Black Midi Dress", src: "/black-empire-midi-dress.png", alt: "Black embroidered empire-waist midi dress" },
+  { name: "Navy-Green Knit Cardigan", src: "/navy-green-knit-cardigan.png", alt: "Illustrative dark navy-green knit cardigan" },
 ];
 
 type LaptopMockupProps = {

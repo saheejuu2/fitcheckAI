@@ -8,6 +8,7 @@ import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring }
 const HERO_GARMENTS = [
   { name: "jacket", src: "/floating-jacket.webp", alt: "Cobalt technical jacket suspended in midair" },
   { name: "black midi dress", src: "/black-empire-midi-dress.png", alt: "Black embroidered empire-waist midi dress with short puff sleeves and a full A-line skirt" },
+  { name: "knit cardigan", src: "/navy-green-knit-cardigan.png", alt: "Dark navy-green collared knit cardigan with purple-tipped cuffs" },
   { name: "shirt", src: "/floating-shirt.webp", alt: "Ivory long-sleeve shirt with intricate cobalt embroidery suspended in midair" },
   { name: "barong", src: "/floating-barong.webp", alt: "Ivory embroidered barong suspended in midair" },
 ];

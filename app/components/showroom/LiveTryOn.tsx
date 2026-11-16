@@ -478,8 +478,8 @@ export function LiveTryOn() {
   const isLiveSession = stage === "live" || stage === "connecting";
 
   return (
-    <div>
-      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch xl:gap-12">
+    <div className="w-full max-w-full min-w-0">
+      <div className="grid grid-cols-1 min-w-0 w-full gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch xl:gap-12">
         {/* Left Column: Showroom View */}
         <motion.div
           variants={cardVariants}
@@ -488,7 +488,7 @@ export function LiveTryOn() {
           whileInView={isLiveSession ? undefined : "visible"}
           animate={isLiveSession ? "visible" : undefined}
           viewport={{ once: false, margin: "-60px" }}
-          className="relative isolate aspect-[4/3] min-h-[280px] sm:min-h-[380px] lg:aspect-auto lg:min-h-0 w-full overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl will-change-[transform,opacity]"
+          className="relative isolate aspect-[4/3] min-h-[240px] sm:min-h-[360px] lg:aspect-auto lg:min-h-0 w-full min-w-0 max-w-full overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl will-change-[transform,opacity]"
         >
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-left text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-right text-white/50" />
@@ -565,10 +565,10 @@ export function LiveTryOn() {
           whileInView={isLiveSession ? undefined : "visible"}
           animate={isLiveSession ? "visible" : undefined}
           viewport={{ once: false, margin: "-60px" }}
-          className="flex flex-col justify-between rounded-md border border-[#d5d5e4] bg-[#fcfcff] p-5 sm:p-6 shadow-sm will-change-[transform,opacity]"
+          className="flex flex-col justify-between w-full min-w-0 max-w-full rounded-md border border-[#d5d5e4] bg-[#fcfcff] p-4 sm:p-6 shadow-sm will-change-[transform,opacity]"
         >
           {(stage === "choose" || stage === "survey") && (
-            <div className="flex h-full flex-col justify-between gap-4">
+            <div className="flex h-full w-full min-w-0 flex-col justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#101b43]">Select your look</h3>
                 <p className="text-xs sm:text-sm leading-relaxed text-[#51516c]">
@@ -577,8 +577,8 @@ export function LiveTryOn() {
               </div>
 
               {/* Garments Carousel with Left/Right Buttons */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="space-y-2 w-full min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 w-full min-w-0">
                   <button
                     type="button"
                     onClick={() => scrollCarousel("left")}
@@ -593,7 +593,7 @@ export function LiveTryOn() {
                     ref={carouselRef}
                     role="group"
                     aria-label="Choose a garment"
-                    className="flex flex-1 gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
+                    className="flex flex-1 min-w-0 w-full gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
                   >
                     {(Object.entries(GARMENTS) as [BuiltInGarment, typeof GARMENTS[BuiltInGarment]][]).map(([id, item]) => {
                       const isSelected = garment === id;

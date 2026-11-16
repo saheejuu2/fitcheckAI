@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Script from "next/script";
-import { ArrowRight, Camera, Upload } from "lucide-react";
+import { ArrowRight, Camera, ChevronLeft, ChevronRight, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import type { createDecartClient } from "@decartai/sdk";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { SocialLinks } from "../SocialLinks";
 import { GarmentCutoutError, prepareGarmentCutout, removeGarmentBackground } from "@/lib/garment-cutout";
 import { stepProblem, toSubmission, type SurveyAnswers, type SurveyDefinition } from "@/lib/surveyDefinition";
@@ -101,7 +102,34 @@ async function photoStream(photoUrl: string, width: number, height: number, fps:
   };
 }
 
+const SHOWROOM_EASE = [0.21, 0.47, 0.32, 0.98] as const;
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 28,
+    scale: 0.98,
+    transition: {
+      duration: 0.35,
+      ease: SHOWROOM_EASE,
+    },
+  },
+  visible: (custom?: { delay?: number; shouldReduceMotion?: boolean | null }) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: custom?.shouldReduceMotion
+      ? { duration: 0 }
+      : {
+          duration: 0.6,
+          delay: custom?.delay ?? 0,
+          ease: SHOWROOM_EASE,
+        },
+  }),
+};
+
 export function LiveTryOn() {
+  const shouldReduceMotion = useReducedMotion();
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [stage, setStage] = useState<Stage>("choose");
   const [mode, setMode] = useState<PreviewMode>("live");
@@ -125,6 +153,48 @@ export function LiveTryOn() {
   const video = useRef<HTMLVideoElement>(null);
   const signInButton = useRef<HTMLDivElement>(null);
   const status = useRef<HTMLHeadingElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollButtons = useCallback(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    updateScrollButtons();
+    el.addEventListener("scroll", updateScrollButtons, { passive: true });
+    window.addEventListener("resize", updateScrollButtons);
+    return () => {
+      el.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, [updateScrollButtons]);
+
+  const scrollCarousel = (direction: "left" | "right") => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const scrollStep = el.clientWidth * 0.75;
+    el.scrollBy({
+      left: direction === "left" ? -scrollStep : scrollStep,
+      behavior: "smooth",
+    });
+  };
+
+  const selectGarment = (id: BuiltInGarment) => {
+    setGarment(id);
+    cardRefs.current[id]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -405,11 +475,21 @@ export function LiveTryOn() {
   const previewUnavailable = availability !== null && !availability.previewAvailable;
   const previewLoading = stage === "connecting" ? connectionLabel : stage === "live" && buffering ? "Buffering your preview…" : "";
 
+  const isLiveSession = stage === "live" || stage === "connecting";
+
   return (
     <div>
       <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch xl:gap-12">
         {/* Left Column: Showroom View */}
-        <div className="relative isolate aspect-[4/3] min-h-[280px] sm:min-h-[380px] lg:aspect-auto lg:min-h-0 w-full overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl">
+        <motion.div
+          variants={cardVariants}
+          custom={{ delay: 0, shouldReduceMotion }}
+          initial={isLiveSession ? "visible" : "hidden"}
+          whileInView={isLiveSession ? undefined : "visible"}
+          animate={isLiveSession ? "visible" : undefined}
+          viewport={{ once: false, margin: "-60px" }}
+          className="relative isolate aspect-[4/3] min-h-[280px] sm:min-h-[380px] lg:aspect-auto lg:min-h-0 w-full overflow-hidden rounded-md bg-[#15152f] text-white shadow-xl will-change-[transform,opacity]"
+        >
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-left text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-top-right text-white/50" />
           <span aria-hidden="true" className="viewfinder-bracket viewfinder-bottom-left text-white/50" />
@@ -475,10 +555,18 @@ export function LiveTryOn() {
               <span>AI style preview</span><span className="tabular-nums">{remaining}s left</span>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right Column: Controls Container */}
-        <div className="flex flex-col justify-between rounded-md border border-[#d5d5e4] bg-[#fcfcff] p-5 sm:p-6 shadow-sm">
+        <motion.div
+          variants={cardVariants}
+          custom={{ delay: 0.12, shouldReduceMotion }}
+          initial={isLiveSession ? "visible" : "hidden"}
+          whileInView={isLiveSession ? undefined : "visible"}
+          animate={isLiveSession ? "visible" : undefined}
+          viewport={{ once: false, margin: "-60px" }}
+          className="flex flex-col justify-between rounded-md border border-[#d5d5e4] bg-[#fcfcff] p-5 sm:p-6 shadow-sm will-change-[transform,opacity]"
+        >
           {(stage === "choose" || stage === "survey") && (
             <div className="flex h-full flex-col justify-between gap-4">
               <div className="space-y-1">
@@ -488,47 +576,95 @@ export function LiveTryOn() {
                 </p>
               </div>
 
-              <div role="group" aria-label="Choose a garment" className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                {(Object.entries(GARMENTS) as [BuiltInGarment, typeof GARMENTS[BuiltInGarment]][]).map(([id, item]) => {
-                  const isSelected = garment === id;
-                  return (
+              {/* Garments Carousel with Left/Right Buttons */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <button
+                    type="button"
+                    onClick={() => scrollCarousel("left")}
+                    disabled={!canScrollLeft}
+                    aria-label="Previous garments"
+                    className="inline-flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full border border-[#d5d5e4] bg-white text-[#101b43] shadow-xs transition-all hover:border-[#101b43] hover:bg-[#f0f2fa] disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-[#d5d5e4] focus-visible:outline-2 focus-visible:outline-[#0038ff]"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+
+                  <div
+                    ref={carouselRef}
+                    role="group"
+                    aria-label="Choose a garment"
+                    className="flex flex-1 gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
+                  >
+                    {(Object.entries(GARMENTS) as [BuiltInGarment, typeof GARMENTS[BuiltInGarment]][]).map(([id, item]) => {
+                      const isSelected = garment === id;
+                      return (
+                        <button
+                          key={id}
+                          ref={(el) => { cardRefs.current[id] = el; }}
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => selectGarment(id)}
+                          className={`group relative w-[136px] sm:w-[152px] shrink-0 aspect-[1.32/1] sm:aspect-[1.36/1] snap-start overflow-hidden rounded border text-left transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff] ${
+                            isSelected
+                              ? "border-[#0038ff] bg-[#1a1c3d] shadow-[0_0_20px_rgba(0,56,255,0.25)] ring-2 ring-[#0038ff]"
+                              : "border-[#2b2b52] bg-[#12132a] hover:border-[#4b5182] hover:bg-[#161734]"
+                          }`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center text-[clamp(0.65rem,1.1vw,0.85rem)] font-black italic uppercase leading-[0.88] tracking-[-0.04em] transition-colors select-none ${
+                              isSelected ? "text-white/35" : "text-white/15 group-hover:text-white/25"
+                            }`}
+                          >
+                            <span className="block">{item.displayName[0]}</span>
+                            <span className="block">{item.displayName[1]}</span>
+                          </span>
+                          <Image
+                            src={item.image}
+                            alt=""
+                            fill
+                            sizes="(max-width: 640px) 140px, 160px"
+                            className="z-10 object-contain p-2 transition-transform duration-300 ease-out group-hover:scale-105 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                          />
+                          <div
+                            className={`absolute inset-x-0 bottom-0 z-20 border-t border-white/10 px-2 py-1 transition-colors ${
+                              isSelected ? "bg-[#0b0c23]/95" : "bg-[#0b0c23]/90 group-hover:bg-[#0b0c23]"
+                            }`}
+                          >
+                            <span className="block truncate text-[0.68rem] sm:text-xs font-semibold tracking-tight text-white/95">
+                              {item.name}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollCarousel("right")}
+                    disabled={!canScrollRight}
+                    aria-label="Next garments"
+                    className="inline-flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full border border-[#d5d5e4] bg-white text-[#101b43] shadow-xs transition-all hover:border-[#101b43] hover:bg-[#f0f2fa] disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-[#d5d5e4] focus-visible:outline-2 focus-visible:outline-[#0038ff]"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+
+                {/* Carousel Indicator Dots */}
+                <div className="flex justify-center items-center gap-1.5 pt-1">
+                  {(Object.keys(GARMENTS) as BuiltInGarment[]).map((id) => (
                     <button
                       key={id}
                       type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => setGarment(id)}
-                      className={`group relative aspect-[1.36/1] sm:aspect-[1.4/1] overflow-hidden rounded border text-left transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0038ff] ${
-                        isSelected
-                          ? "border-[#0038ff] bg-[#1a1c3d] shadow-[0_0_20px_rgba(0,56,255,0.25)] ring-2 ring-[#0038ff]"
-                          : "border-[#2b2b52] bg-[#12132a] hover:border-[#4b5182] hover:bg-[#161734]"
+                      aria-label={`Select ${GARMENTS[id].name}`}
+                      onClick={() => selectGarment(id)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        garment === id ? "w-6 bg-[#0038ff]" : "w-1.5 bg-[#d5d5e4] hover:bg-[#a3acd2]"
                       }`}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={`absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center text-[clamp(0.68rem,1.2vw,0.9rem)] font-black italic uppercase leading-[0.88] tracking-[-0.04em] transition-colors select-none ${
-                          isSelected ? "text-white/35" : "text-white/15 group-hover:text-white/25"
-                        }`}
-                      >
-                        <span className="block">{item.displayName[0]}</span>
-                        <span className="block">{item.displayName[1]}</span>
-                      </span>
-                      <Image
-                        src={item.image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 1023px) 45vw, 16vw"
-                        className="z-10 object-contain p-2 sm:p-2.5 transition-transform duration-300 ease-out group-hover:scale-105 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                      />
-                      <div className={`absolute inset-x-0 bottom-0 z-20 border-t border-white/10 px-2 py-1.5 transition-colors sm:px-2.5 ${
-                        isSelected ? "bg-[#0b0c23]/95" : "bg-[#0b0c23]/90 group-hover:bg-[#0b0c23]"
-                      }`}>
-                        <span className="block truncate text-[0.68rem] sm:text-xs font-semibold tracking-tight text-white/95">
-                          {item.name}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
+                    />
+                  ))}
+                </div>
               </div>
 
               <div
@@ -653,7 +789,7 @@ export function LiveTryOn() {
               <SocialLinks />
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {stage === "survey" && (

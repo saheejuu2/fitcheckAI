@@ -1,7 +1,7 @@
 "use client";
 
 import { LiveTryOn } from "./showroom/LiveTryOn";
-import { ScrollHeading } from "./ScrollReveal";
+import { ScrollHeading, ScrollText } from "./ScrollReveal";
 
 export function InteractiveShowroom() {
   return (
@@ -19,9 +19,11 @@ export function InteractiveShowroom() {
             Explore the showroom.
           </h2>
         </ScrollHeading>
-        <p className="mt-3 text-center text-xs sm:text-sm font-medium text-[#51516c]">
-          Visual style preview only. Sizing and drape vary; check the seller’s size chart for fit.
-        </p>
+        <ScrollText delay={0.08} margin="-80px">
+          <p className="mt-3 text-center text-xs sm:text-sm font-medium text-[#51516c]">
+            Visual style preview only. Sizing and drape vary; check the seller’s size chart for fit.
+          </p>
+        </ScrollText>
       </div>
 
       <div className="mt-8">

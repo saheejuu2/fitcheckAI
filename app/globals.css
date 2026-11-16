@@ -345,6 +345,15 @@
   background: #0038ff;
 }
 
+/* Hide scrollbar for clean carousels while maintaining touch/wheel scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Caret styling */
 input,
 textarea,
